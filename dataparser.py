@@ -59,10 +59,12 @@ class DataParser:
                         if cid != -1 and cid != -2:
                             print(cid)
                             smiles = PubChemHelper.cid_to_smiles(cid)
-                            desc = ChemFeaGenerator.smiles_to_chemdescriptors(smiles)
+                            desc = ChemFeaGenerator.get_chem_descriptors(smiles)
                             pubchemfp = ChemFeaGenerator.get_pubchem_fingerprint(cid)
-                            print(pubchemfp)
-                            print(len(pubchemfp))
+                            morgans = ChemFeaGenerator.get_morgan_fingerprint(smiles)
+                            features = ChemFeaGenerator.generate_mol2vec_features(smiles)
+                            print(features)
+                            print(len(features))
                         exit(1)
 
         return data
