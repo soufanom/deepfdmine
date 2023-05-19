@@ -44,16 +44,18 @@ class DataParser:
             compound_details = compounds[compound_id]
             cas_number = compound_details["cas_number"]
             public_id = compound_details["public_id"]
-            cid = PubChemHelper.cas_to_pubchem(cas_number)
-            if cid != -1 and cid != -2 and cid not in [None, ""]:
-                print(cid)
-                outfile.write(str(cid) + "\t")
+            smiles_moldb = compound_details["moldb_smiles"]
+            print(cas_number)
+            print(public_id)
+            print(smiles_moldb)
+            cid = PubChemHelper.cas_to_pubchem(cas_number, smiles_moldb)
+            if cid is not None:
+                outfile.write(str(cid) + "\t" + str(public_id) + "\t")
                 smiles = PubChemHelper.cid_to_smiles(cid)
                 outfile.write(str(smiles) + "\t")
-                outfile.write(str(public_id) + "\t")
                 compound_obj = ChemFeaGenerator(smiles, cid)
                 features = compound_obj.get_all_features()
-                ",".join(features)
+                features = ",".join(features)
                 outfile.write(features + "\n")
         outfile.close()
 
@@ -77,18 +79,10 @@ class DataParser:
                     if compound_id in compounds:
                         compound_details = compounds[compound_id]
                         cas_number = compound_details["cas_number"]
-                        cid = PubChemHelper.cas_to_pubchem(cas_number)
                         print(food_id)
                         print(orig_content)
                         print(compound_details)
                         print(compound_details["moldb_smiles"])
-                        if cid != -1 and cid != -2:
-                            print(cid)
-                            smiles = PubChemHelper.cid_to_smiles(cid)
-                            compound_obj = ChemFeaGenerator(smiles, cid)
-                            features = compound_obj.get_all_features()
-                            print(features)
-                            print(len(features))
-                        exit(1)
+
 
         return data
