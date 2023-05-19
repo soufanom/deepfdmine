@@ -45,18 +45,18 @@ class DataParser:
             cas_number = compound_details["cas_number"]
             public_id = compound_details["public_id"]
             smiles_moldb = compound_details["moldb_smiles"]
-            print(cas_number)
-            print(public_id)
-            print(smiles_moldb)
-            cid = PubChemHelper.cas_to_pubchem(cas_number, smiles_moldb)
-            if cid is not None:
-                outfile.write(str(cid) + "\t" + str(public_id) + "\t")
-                smiles = PubChemHelper.cid_to_smiles(cid)
-                outfile.write(str(smiles) + "\t")
-                compound_obj = ChemFeaGenerator(smiles, cid)
-                features = compound_obj.get_all_features()
-                features = ",".join(features)
-                outfile.write(features + "\n")
+            try:
+                cid = PubChemHelper.cas_to_pubchem(cas_number, smiles_moldb)
+                if cid is not None:
+                    outfile.write(str(public_id) + "\t" + str(cid) + "\t")
+                    smiles = PubChemHelper.cid_to_smiles(cid)
+                    outfile.write(str(smiles) + "\t")
+                    compound_obj = ChemFeaGenerator(smiles, cid)
+                    features = compound_obj.get_all_features()
+                    features = ",".join(features)
+                    outfile.write(features + "\n")
+            except Exception as e:
+                print("Exception occurred for compound id: " + str(public_id) + " " + str(e))
         outfile.close()
 
     def parse_food_db_content_json_to_dict(self, compounds) -> object:
