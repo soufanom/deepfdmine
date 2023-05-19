@@ -31,6 +31,33 @@ class DataParser:
 
         return compounds
 
+    # write a method to write array elements to a file with comman separated values
+    def write_array_to_file(self, array):
+        outfile = open("array.txt", "w")
+        for element in array:
+            outfile.write(str(element) + ",")
+        outfile.close()
+
+    def write_compounds_fea_to_file(self, compounds):
+        outfile = open("compounds_fea_food_db.txt", "w")
+        for compound_id in compounds:
+            compound_details = compounds[compound_id]
+            cas_number = compound_details["cas_number"]
+            public_id = compound_details["public_id"]
+            cid = PubChemHelper.cas_to_pubchem(cas_number)
+            if cid != -1 and cid != -2:
+                print(cid)
+                outfile.write(str(cid) + "\t")
+                smiles = PubChemHelper.cid_to_smiles(cid)
+                outfile.write(str(smiles) + "\t")
+                outfile.write(str(public_id) + "\t")
+                compound_obj = ChemFeaGenerator(smiles, cid)
+                features = compound_obj.get_all_features()
+                for element in features:
+                    outfile.write(str(element) + ",")
+                outfile.write("\n")
+        outfile.close()
+
     def parse_food_db_content_json_to_dict(self, compounds) -> object:
         """
         :rtype: object
@@ -59,10 +86,8 @@ class DataParser:
                         if cid != -1 and cid != -2:
                             print(cid)
                             smiles = PubChemHelper.cid_to_smiles(cid)
-                            desc = ChemFeaGenerator.get_chem_descriptors(smiles)
-                            pubchemfp = ChemFeaGenerator.get_pubchem_fingerprint(cid)
-                            morgans = ChemFeaGenerator.get_morgan_fingerprint(smiles)
-                            features = ChemFeaGenerator.generate_mol2vec_features(smiles)
+                            compound_obj = ChemFeaGenerator(smiles, cid)
+                            features = compound_obj.get_all_features()
                             print(features)
                             print(len(features))
                         exit(1)

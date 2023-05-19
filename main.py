@@ -10,7 +10,8 @@ if __name__ == '__main__':
     d1 = DataParser(content_file, compounds_file)
     # call parse_json_to_dict method
     compounds = d1.parse_food_db_compounds_json_to_dict()
-    content = d1.parse_food_db_content_json_to_dict(compounds)
+    d1.write_compounds_fea_to_file(compounds)
+    #content = d1.parse_food_db_content_json_to_dict(compounds)
 
 
 
