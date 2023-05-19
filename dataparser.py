@@ -45,7 +45,7 @@ class DataParser:
             cas_number = compound_details["cas_number"]
             public_id = compound_details["public_id"]
             cid = PubChemHelper.cas_to_pubchem(cas_number)
-            if cid != -1 and cid != -2:
+            if cid != -1 and cid != -2 and cid not in [None, ""]:
                 print(cid)
                 outfile.write(str(cid) + "\t")
                 smiles = PubChemHelper.cid_to_smiles(cid)
@@ -53,9 +53,8 @@ class DataParser:
                 outfile.write(str(public_id) + "\t")
                 compound_obj = ChemFeaGenerator(smiles, cid)
                 features = compound_obj.get_all_features()
-                for element in features:
-                    outfile.write(str(element) + ",")
-                outfile.write("\n")
+                ",".join(features)
+                outfile.write(features + "\n")
         outfile.close()
 
     def parse_food_db_content_json_to_dict(self, compounds) -> object:
