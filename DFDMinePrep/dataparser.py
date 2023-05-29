@@ -5,16 +5,18 @@ from pubchemhelper import PubChemHelper
 
 
 class DataParser:
-    def __init__(self, content_file_path, compounds_file_path):
+    def __init__(self, content_file_path, compounds_file_path, output_file_path):
         """
 
         :rtype: object
         """
         self.compounds_file_path = compounds_file_path
         self.content_file_path = content_file_path
+        self.output_file_path = output_file_path
 
     def parse_food_db_compounds_json_to_dict(self) -> object:
         """
+            Map the compounds json file to a dictionary (key is compound id and value is the compound details)
         :rtype: object
         """
         compounds = {}
@@ -31,18 +33,14 @@ class DataParser:
 
         return compounds
 
-    # write a method to write array elements to a file with comman separated values
-    def write_array_to_file(self, array):
-        outfile = open("array.txt", "w")
-        for element in array:
-            outfile.write(str(element) + ",")
-        outfile.close()
-
     def write_compounds_fea_to_file(self, compounds):
-        outfile = open("compounds_fea_food_db.txt", "w")
-        for compound_id in compounds:
+        outfile = open(self.output_file_path, "a")
+        for index, key in enumerate(compounds):
+            compound_id = key
             compound_details = compounds[compound_id]
-            cas_number = compound_details["cas_number"]
+            # For the following line of code, we are assuming that the name of the compound is the CAS number
+            #   We can also use the name when cas number is not available
+            cas_number = compound_details["name"]
             public_id = compound_details["public_id"]
             smiles_moldb = compound_details["moldb_smiles"]
             try:

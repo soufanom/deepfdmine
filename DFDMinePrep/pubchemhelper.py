@@ -5,7 +5,12 @@ class PubChemHelper:
     @staticmethod
     def cas_to_pubchem(cas_number, smiles):
         if cas_number is not None:
-            compounds = pcp.get_compounds(cas_number, 'name')
+            try:
+                compounds = pcp.get_compounds(cas_number, 'name')
+            except Exception as e:
+                print(str(e))
+                return None
+
             if compounds:
                 return compounds[0].cid
             elif smiles is not None:
@@ -27,7 +32,12 @@ class PubChemHelper:
     @staticmethod
     def get_most_similar_compound(smiles):
         # Search for compounds using the provided SMILES
-        results = pcp.get_compounds(smiles, 'smiles')
+
+        try:
+            results = pcp.get_compounds(smiles, 'smiles')
+        except Exception as e:
+            print(str(e))
+            return None
 
         if not results:
             print("No compounds found for the given SMILES.")
@@ -49,4 +59,4 @@ class PubChemHelper:
             return compound.canonical_smiles
         except Exception as e:
             print(str(e))
-            return "-1"
+            return None
