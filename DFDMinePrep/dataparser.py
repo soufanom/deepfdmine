@@ -1,11 +1,11 @@
 import json
 
-from chemfeagenerator import ChemFeaGenerator
-from pubchemhelper import PubChemHelper
+from DFDMinePrep.chemfeagenerator import ChemFeaGenerator
+from DFDMinePrep.pubchemhelper import PubChemHelper
 
 
 class DataParser:
-    def __init__(self, content_file_path, compounds_file_path, output_file_path):
+    def __init__(self, content_file_path, compounds_file_path, output_file_path, content_output_path):
         """
 
         :rtype: object
@@ -13,6 +13,7 @@ class DataParser:
         self.compounds_file_path = compounds_file_path
         self.content_file_path = content_file_path
         self.output_file_path = output_file_path
+        self.content_output_path = content_output_path
 
     def parse_food_db_compounds_json_to_dict(self) -> object:
         """
@@ -30,6 +31,20 @@ class DataParser:
                     print(
                         "{0} seems a duplicate compound id in food db json file or it is missing from the file".format(
                             str(key)))
+
+        return compounds
+
+    @staticmethod
+    def parse_food_db_pubchem_file(file_path):
+        """
+            Map the compounds json file to a dictionary (key is compound id and value is the compound details)
+        :rtype: object
+        """
+        compounds = {}
+        with open(file_path) as file:
+            for line in file:
+                s = line.split("\t")
+                compounds[s[0]] = s[1]
 
         return compounds
 
@@ -57,30 +72,44 @@ class DataParser:
                 print("Exception occurred for compound id: " + str(public_id) + " " + str(e))
         outfile.close()
 
-    def parse_food_db_content_json_to_dict(self, compounds) -> object:
+    def parse_food_db_content_json_to_dict(self, compounds, compounds_pubchem_id) -> object:
         """
         :rtype: object
         """
-        data = []
+        outfile = open(self.content_output_path + "Foodb_content.txt", "w")
         with open(self.content_file_path) as file:
             for line in file:
                 line = json.loads(line)
                 source_type = line["source_type"]
-                if (source_type == "Compound"):
+                if source_type == "Compound":
                     food_id = "FOOD" + ("0" * (5 - len(str(line["food_id"])))) + str(line["food_id"])
                     orig_food_id = line["orig_food_id"]
                     compound_id = line["source_id"]
                     orig_content = line["orig_content"]
                     orig_unit = line["orig_unit"]
 
-                    # check if the compound id is in the compounds json file
                     if compound_id in compounds:
-                        compound_details = compounds[compound_id]
-                        cas_number = compound_details["cas_number"]
-                        print(food_id)
-                        print(orig_content)
-                        print(compound_details)
-                        print(compound_details["moldb_smiles"])
+                        public_id = compounds[compound_id]["public_id"]
 
+                        if public_id in compounds_pubchem_id:
+                            # check if the compound id is in the compounds json file
+                            pubchem_id = compounds_pubchem_id[public_id]
+                            if orig_content is not None and orig_content != "0.0":
+                                if orig_food_id is None:
+                                    orig_food_id = "None"
 
-        return data
+                                if orig_unit is None:
+                                    orig_unit = "None"
+
+                                try:
+                                    outfile.write(food_id + "\t" + pubchem_id + "\t" + orig_content + "\t" +
+                                          orig_unit + "\t" + orig_food_id + "\n")
+                                except Exception as e:
+                                    print(food_id)
+                                    print(pubchem_id)
+                                    print(orig_content)
+                                    print(orig_unit)
+                                    print(orig_food_id)
+                                    exit(1)
+        outfile.close()
+        return
