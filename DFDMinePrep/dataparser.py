@@ -82,11 +82,13 @@ class DataParser:
                 line = json.loads(line)
                 source_type = line["source_type"]
                 if source_type == "Compound":
-                    food_id = "FOOD" + ("0" * (5 - len(str(line["food_id"])))) + str(line["food_id"])
+                    f_id = str(line["food_id"])
+                    food_id = "FOOD" + ("0" * (5 - len(f_id)) + f_id)
                     orig_food_id = line["orig_food_id"]
                     compound_id = line["source_id"]
                     orig_content = line["orig_content"]
                     orig_unit = line["orig_unit"]
+                    orig_food_name = line["orig_food_common_name"]
 
                     if compound_id in compounds:
                         public_id = compounds[compound_id]["public_id"]
@@ -101,10 +103,14 @@ class DataParser:
                                 if orig_unit is None:
                                     orig_unit = "None"
 
+                                if orig_food_name is None:
+                                    orig_food_name = "None"
+
                                 try:
-                                    outfile.write(food_id + "\t" + pubchem_id + "\t" + orig_content + "\t" +
+                                    outfile.write(food_id + "\t" + orig_food_name + "\t" + pubchem_id + "\t" + orig_content + "\t" +
                                           orig_unit + "\t" + orig_food_id + "\n")
                                 except Exception as e:
+                                    print(e)
                                     print(food_id)
                                     print(pubchem_id)
                                     print(orig_content)
